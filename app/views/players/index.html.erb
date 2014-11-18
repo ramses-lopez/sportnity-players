@@ -1,0 +1,23 @@
+<h1>Listado de Jugadores</h1>
+
+<table class='table'>
+	<thead>
+		<tr>
+			<th></th>
+			<th>Nombre</th>
+			<th>Apellido</th>
+			<th>Fecha creación</th>
+		</tr>
+	</thead>
+	<tbody>
+		<% @results.each do |player|%>
+		<tr>
+			<td> <img src='<%= player["photoUrl"] %>'></td>
+			<td> <%= player["firstName"] %> </td>
+			<td> <%= player["lastName"] %> </td>
+			<td> <%= DateTime.parse(player["createdAt"]).to_formatted_s(:short) %> </td>
+		</tr>
+		<% end %>
+	</tbody>
+</table>
+
