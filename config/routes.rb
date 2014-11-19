@@ -1,7 +1,6 @@
 Rails.application.routes.draw do
-  get 'players/index'
-  get 'players/show'
 
+  resources :players
   root 'players#index'
 
   # The priority is based upon order of creation: first created -> highest priority.
