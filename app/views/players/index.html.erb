@@ -1,23 +1,17 @@
-<h1>Listado de Jugadores</h1>
-
-<table class='table'>
-	<thead>
-		<tr>
-			<th></th>
-			<th>Nombre</th>
-			<th>Apellido</th>
-			<th>Fecha creación</th>
-		</tr>
-	</thead>
-	<tbody>
-		<% @results.each do |player|%>
-		<tr>
-			<td> <img src='<%= player["photoUrl"] %>'></td>
-			<td> <%= player["firstName"] %> </td>
-			<td> <%= player["lastName"] %> </td>
-			<td> <%= DateTime.parse(player["createdAt"]).to_formatted_s(:short) %> </td>
-		</tr>
-		<% end %>
-	</tbody>
-</table>
-
+<div class="row">
+	<% @results.each do |player|%>
+	<div class="col-sm-6 col-md-4">
+		<div class="thumbnail">
+			<img data-src="holder.js/300x300" alt="..." src='<%= player["photoUrl"] %>'>
+			<div class="caption text-center">
+				<h3><%= "#{player["firstName"]} #{player["lastName"]}" %></h3>
+				<p><%= random_quip player["firstName"] %>...</p>
+				<p>
+					<%= link_to "Update", edit_player_path(id: player["objectId"]), class: "btn btn-primary" %>
+					<%= link_to "Delete", player_path(id: player["objectId"]), method: :delete, class: "btn btn-danger" %>
+				</p>
+			</div>
+		</div>
+	</div>
+	<% end %>
+</div>

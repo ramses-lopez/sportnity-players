@@ -25,21 +25,57 @@ class PlayersController < ApplicationController
     end
 
     def create
+        @app_id = "Mf3LVmQ9E5eN7VJ3rNG7RjcipryYzf0YZ0lL0WEU"
+        @rest_api_key = "kgkUqdFmxtisIazLaEUToaTAlcTiQTTBusWJ9f9b"
 
-        data = {firstName: 'test', lastName: 'name', photoUrl: 'url'}
+        data = {firstName: params[:first_name],
+            lastName: params[:last_name],
+            photoUrl: params[:image_url]}
 
         response = HTTParty.post("https://api.parse.com/1/classes/Player",
             headers: {"Content-Type" => "application/json", "X-Parse-Application-Id" => @app_id, "X-Parse-REST-API-Key" => @rest_api_key},
             body: data.to_json)
 
-        debugger
-
-        logger.debug response.inspect
+        redirect_to players_path, flash: {success: "Player created"}
     end
 
     def edit
+        @app_id = "Mf3LVmQ9E5eN7VJ3rNG7RjcipryYzf0YZ0lL0WEU"
+        @rest_api_key = "kgkUqdFmxtisIazLaEUToaTAlcTiQTTBusWJ9f9b"
+
+        response = HTTParty.get("https://api.parse.com/1/classes/Player/#{params[:id]}",
+            headers: {"Content-Type" => "application/json", "X-Parse-Application-Id" => @app_id, "X-Parse-REST-API-Key" => @rest_api_key})
+
+        data = response.parsed_response
+
+        @first_name = data["firstName"]
+        @last_name = data["lastName"]
+        @image_url = data["photoUrl"]
+        @object_id = data["objectId"]
     end
 
     def update
+        @app_id = "Mf3LVmQ9E5eN7VJ3rNG7RjcipryYzf0YZ0lL0WEU"
+        @rest_api_key = "kgkUqdFmxtisIazLaEUToaTAlcTiQTTBusWJ9f9b"
+
+        data = {firstName: params[:first_name],
+            lastName: params[:last_name],
+            photoUrl: params[:image_url]}
+
+        response = HTTParty.put("https://api.parse.com/1/classes/Player/#{params[:id]}",
+            headers: {"Content-Type" => "application/json", "X-Parse-Application-Id" => @app_id, "X-Parse-REST-API-Key" => @rest_api_key},
+            body: data.to_json)
+
+        redirect_to players_path, flash: {success: "Player updated"}
+    end
+
+    def destroy
+        @app_id = "Mf3LVmQ9E5eN7VJ3rNG7RjcipryYzf0YZ0lL0WEU"
+        @rest_api_key = "kgkUqdFmxtisIazLaEUToaTAlcTiQTTBusWJ9f9b"
+
+        response = HTTParty.delete("https://api.parse.com/1/classes/Player/#{params[:id]}",
+            headers: {"Content-Type" => "application/json", "X-Parse-Application-Id" => @app_id, "X-Parse-REST-API-Key" => @rest_api_key})
+
+        redirect_to players_path, flash: {success: "Player deleted"}
     end
 end
