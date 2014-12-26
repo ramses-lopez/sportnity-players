@@ -1,0 +1,36 @@
+<div class="row">
+	<% @results.each do |event|%>
+	<div class="col-sm-6 col-md-4">
+		<div class="thumbnail">
+			<img data-src="holder.js/300x300" src='<%= event["eventImage"] %>'>
+			<div class="caption text-center">
+				<h3><%= event["name"].capitalize %></h3>
+				<h4><%= event["description"] %></h4>
+				<p>
+					<%#= link_to "Update", edit_event_path(id: event["objectId"]), class: "btn btn-primary" %>
+					<%#= link_to "Delete", event_path(id: event["objectId"]), {method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-danger"} %>
+				</p>
+			</div>
+		</div>
+		<table class="table table-bordered table-striped col-sm-6 col-md-4">
+			<thead>
+				<tr>
+					<th>Property</th>
+					<th>Value</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr><td>objectId</td><td><%= event["objectId"] %></td></tr>
+				<tr><td>eventType</td><td><%= event["eventType"] %></td></tr>
+				<tr><td>key</td><td><%= event["key"] %></td></tr>
+				<tr><td>level</td><td><%= event["level"] %></td></tr>
+				<tr><td>created at</td><td><%= I18n.l Time.parse(event["createdAt"]) %></td></tr>
+				<tr><td>updated at</td><td><%= I18n.l Time.parse(event["updatedAt"]) %></td></tr>
+				<tr><td>subEvents</td><td><%= event["subEvents"] %></td></tr>
+				<tr><td>rules</td><td><%= event["rules"] %></td></tr>
+			</tbody>
+		</table>
+	</div>
+	<% end %>
+</div>
+
