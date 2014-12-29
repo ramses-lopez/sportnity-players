@@ -1,65 +1,66 @@
 namespace :data do
-  desc "Extrae los datos del partido"
-  task player_match_event: :environment do
+	desc "Extaer los eventos a partir de los matches"
+	task matches: :environment do
+		id = "objectId"
+		matches = get('Match/?where={"objectId":{"$in":["mVrNirrZv7","uzGKHkiunx","dTu51qCMgk"]}}', debug: true)["results"]
+		puts matches.size
+	end
 
-  	puts "Se obtienen los tipos de evento existentes en parse"
+	desc "Extrae los datos del partido"
+	task player_match_event: :environment do
+		id = "objectId"
 
-  	id = "objectId"
+		response = get('Player_Match_Event/?order=createdAt&include=matchId,teamId,eventId,playerId&where={"matchId":{"__type":"Pointer","className":"Match","objectId":"mVrNirrZv7"}}')
+		results = response["results"]
 
-  	events = get_event_type
+		start_time = Time.now
 
-    response = get('Player_Match_Event/?where={"matchId":{"__type":"Pointer","className":"Match","objectId":"mVrNirrZv7"}}')
+		team_a_id = results.first["matchId"]["teamA"]["objectId"]
+		team_b_id = results.first["matchId"]["teamB"]["objectId"]
 
-    results = response["results"]
+		goals_a_1 = 0
+		goals_b_1 = 0
+		goals_a_2 = 0
+		goals_b_2 = 0
+		second_term = false
 
-    puts "Match mVrNirrZv7 #{results.size} eventos"
+		results.each do |rp|
+			event = rp["eventId"]
+			my_player = rp["playerId"]
+			my_team = rp["teamId"]
 
-    results.each do |result|
 
-#                <playersEvents>
-#                   <eventType>1</eventType>
-#                   <idPlayer>498</idPlayer>
-#                   <minute>45</minute>
-#                </playersEvents>
+			puts "event: #{event["description"]} (#{ event["key"] }) "
+			puts "team: #{my_team["name"]}" unless my_team.nil?
+			puts "player: #{my_player["firstName"]} #{my_player["lastName"]}" unless my_player.nil?
+			puts "minute: #{rp["eventTimeString"]}"
+			puts "--"
 
-		rp = get("Player_Match_Event/#{result[id]}")
+			#los eventos estan ordenados por hora y fecha de creacion
+			second_term = true if event['key'] == 1
 
-		my_event = events.select {|e| e[id] == rp["eventId"][id]}.first
-		my_player = rp["playerId"].nil? ? nil : get("Player/#{rp["playerId"][id]}")
-		my_team = rp["teamId"].nil? ? nil : get("Team/#{rp["teamId"][id]}")
+			if event["key"] == 3
+				if my_team[id] == team_a_id
+					second_term ? goals_a_2+=1 : goals_a_1+=1
+				else
+					second_term ? goals_b_2+=1 : goals_b_1+=1
+				end
+			end
+		end
 
-		#puts "event: #{rp["eventId"]}"
-		puts "event -> #{my_event["description"]} (#{ my_event["key"] }) "
-		puts "team: #{my_team["name"]}" unless my_team.nil?
-		puts "player: #{my_player["firstName"]} #{my_player["lastName"]}" unless my_player.nil?
-		puts "minute: #{rp["eventTimeString"]}"
+		puts "#{team_a_id} (#{goals_a_1+goals_a_2}:#{goals_b_1+goals_b_2}) #{team_b_id}"
 
-		puts "--"
+		puts "Finalizado en #{(Time.now - start_time)} segundos"
+	end
 
-		#rp.parsed_response.each do |key|
-			#puts "#{key}: #{rp[key]},"
-		#end
-
-    end
-
-  end
-
-  #obtener los tipos de evento
-  def get_event_type
-  	rp = get('Event')
-  	rp["results"]
-  end
-
-  def get(endpoint, options = nil)
-  	base_uri = "https://api.parse.com/1/classes"
-    app_id = "Mf3LVmQ9E5eN7VJ3rNG7RjcipryYzf0YZ0lL0WEU"
-    rest_api_key = "kgkUqdFmxtisIazLaEUToaTAlcTiQTTBusWJ9f9b"
-    headers = {"X-Parse-Application-Id" => app_id, "X-Parse-REST-API-Key" => rest_api_key, "Content-Type" => "application/json"}
-
-    puts "debug: #{URI.encode("#{base_uri}/#{endpoint}")}" unless options.blank? || options[:debug] == false
-
-    response = HTTParty.get(URI.encode("#{base_uri}/#{endpoint}"), headers: headers)
-  end
+	def get(endpoint, options = nil)
+		base_uri = "https://api.parse.com/1/classes"
+		app_id = "Mf3LVmQ9E5eN7VJ3rNG7RjcipryYzf0YZ0lL0WEU"
+		rest_api_key = "kgkUqdFmxtisIazLaEUToaTAlcTiQTTBusWJ9f9b"
+		headers = {"X-Parse-Application-Id" => app_id, "X-Parse-REST-API-Key" => rest_api_key, "Content-Type" => "application/json"}
+		puts "debug: #{URI.encode("#{base_uri}/#{endpoint}")}" unless options.blank? || options[:debug] == false
+		response = HTTParty.get(URI.encode("#{base_uri}/#{endpoint}"), headers: headers)
+	end
 
 end
 
