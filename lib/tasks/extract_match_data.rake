@@ -9,6 +9,21 @@ namespace :data do
 	desc "Extrae los datos del partido"
 	task player_match_event: :environment do
 		id = "objectId"
+		r = 'matchReport'
+		l1 = 'game'
+		pe = 'playersEvents'
+
+		request = {}
+		request[r] = {}
+		request[r]['idUser'] = 236
+		request[r]['local'] = 55
+		request[r]['visitante'] = 66
+		request[r][l1] = {}
+		request[r][l1]['localData'] = {}
+		request[r][l1]['visitorData'] = {}
+		request[r][pe] = []
+		local_data = request[r][l1]['localData']
+		visitor_data = request[r][l1]['visitorData']
 
 		response = get('Player_Match_Event/?order=createdAt&include=matchId,teamId,eventId,playerId&where={"matchId":{"__type":"Pointer","className":"Match","objectId":"mVrNirrZv7"}}')
 		results = response["results"]
@@ -46,9 +61,33 @@ namespace :data do
 					second_term ? goals_b_2+=1 : goals_b_1+=1
 				end
 			end
+
+			this_event = {}
+			this_event[:event_type] = event['key']
+			this_event[:id_player] = my_player['firstName'] unless my_player.nil?
+			this_event[:minute] = rp['eventTimeString']
+			request[r][pe] << this_event
 		end
 
+		local_data['goals'] = 8
+		local_data['goals_extratime'] = 0
+		local_data['goals_firstpart'] = goals_a_1
+		local_data['goals_penalty'] = 1
+		local_data['goals_secondpart'] = goals_a_2
+		local_data['idTeam'] = 48
+		local_data['played'] = 0
+
+		visitor_data['goals'] = 8
+		visitor_data['goals_extratime'] = 0
+		visitor_data['goals_firstpart'] = goals_b_1
+		visitor_data['goals_penalty'] = 0
+		visitor_data['goals_secondpart'] = goals_b_2
+		visitor_data['idTeam'] = 49
+		visitor_data['played'] = 0
+
 		puts "#{team_a_id} (#{goals_a_1+goals_a_2}:#{goals_b_1+goals_b_2}) #{team_b_id}"
+
+		puts request.to_xml
 
 		puts "Finalizado en #{(Time.now - start_time)} segundos"
 	end
